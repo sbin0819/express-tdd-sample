@@ -1,4 +1,4 @@
-const app = require('./index');
+const app = require('../../');
 const should = require('should');
 const request = require('supertest');
 
@@ -51,7 +51,7 @@ describe('GET /users/:id', () => {
   });
 });
 
-describe('GET /users/1', () => {
+describe('GET /users/:id', () => {
   describe('성공시', (done) => {
     it('204를 응답한다.', (done) => {
       request(app).delete('/users/1').expect(204).end(done);
@@ -85,6 +85,51 @@ describe('POST /users', () => {
     });
     it('입력한 name을 반환한다.', () => {
       body.should.have.property('name', name);
+    });
+  });
+
+  describe('실패시', () => {
+    it('name 파라미터 누락시 400을 반환한다', (done) => {
+      request(app).post('/users').send({}).expect(400).end(done);
+    });
+    it('name이 중복일 경우 409를 반환한다', (done) => {
+      let name = 'daniel';
+      request(app).post('/users').send({ name }).expect(409).end(done);
+    });
+  });
+});
+
+describe('PUT /users/:id', () => {
+  describe('성공시', () => {
+    it('변경된 name을 응답한다', (done) => {
+      let name = 'dan';
+      request(app)
+        .put('/users/3')
+        .send({ name })
+        .end((err, res) => {
+          res.body.should.have.property('name', name);
+          done();
+        });
+    });
+  });
+
+  describe('실패시', () => {
+    it('정수가 아닌 경우 400을 응답한다', (done) => {
+      request(app).put('/users/one').expect(400).end(done);
+    });
+
+    it('name이 없을경우', (done) => {
+      request(app).put('/users/1').send({}).expect(400).end(done);
+    });
+    it('없는 유저일 경우', (done) => {
+      request(app)
+        .put('/users/999')
+        .send({ name: 'foo' })
+        .expect(404)
+        .end(done);
+    });
+    it('이름이 중복일 경우 409', (done) => {
+      request(app).put('/users/2').send({ name: 'park' }).expect(409).end(done);
     });
   });
 });

@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "start": "node index.js",
-    "test": "mocha index.spec.js"
+    "start": "node bin/www.js",
+    "test": "NODE_ENV=test mocha api/user/user.spec.js"
   },
   "dependencies": {
     "express": "^4.17.1",
